@@ -1,0 +1,57 @@
+#updating packages
+apt update
+
+#install apache2
+apt install apache2 apache2-utils
+
+#install subversion
+apt -y install subversion subversion-tools libapache2-mod-svn
+
+#goto this path edit the file
+nano /etc/apache2/mods-enabled/dav_svn.conf
+
+#add this data in the avove /etc/apache2/mods-enabled/dav_svn.conf path (need to uncomment the following lines )
+-------------------------------------------------
+<Location /svn>
+DAV svn
+SVNParentPath /var/lib/svn
+AuthType Basic
+AuthName "Subversion Repository"
+AuthUserFile /etc/apache2/dav_svn.passwd
+<LimitExcept GET PROPFIND OPTIONS REPORT>
+Require valid-user
+</LimitExcept>
+</Location>
+------------------------------------------------
+
+#Adding user and giving password to user
+htpasswd -cm /etc/apache2/dav_svn.passwd admin
+
+#create directory
+mkdir -p /var/lib/svn
+
+#creating svn repository ( here testrepo is the repository name)
+svnadmin create /var/lib/svn/testrepo
+
+#Giving permissions to repository ( changing the permisssions for repository) 
+chown -R www-data:www-data /var/lib/svn/testrepo/
+chmod -R 775 /var/lib/svn/testrepo/
+
+#Restart apache ( need to restart to aplly the changes that we made) 
+systemctl restart apache2
+
+#Create and add data in file ( create a file )
+touch file.txt
+nano file.txt 
+ 
+#Checkout the file ( we are creating the file under the directory /home/bandaru/Music )
+svn checkout http://192.168.1.3/svn/testrepo/ /home/bandaru/Music
+
+#Add file ( adding the file which we want to push to svn)
+svn add file.txt
+
+#import the file ( import is to push the file from local to svn repository)
+svn import -m 'sending files' /home/bandaru/Music/ http://192.168.2.167/svn/testrepo/
+
+#now go to browser and check for file whether it is available or not 
+http://192.168.2.167/svn/testrepo/
