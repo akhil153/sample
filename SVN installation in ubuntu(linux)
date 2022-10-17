@@ -55,3 +55,8 @@ svn import -m 'sending files' /home/bandaru/Music/ http://192.168.2.167/svn/test
 
 #now go to browser and check for file whether it is available or not 
 http://192.168.2.167/svn/testrepo/
+
+
+#we can checkout from other system which is in the same network by using following command 
+svn co http://192.168.1.3/svn/testrepo/
+
